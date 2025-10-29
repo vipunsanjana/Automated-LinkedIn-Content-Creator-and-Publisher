@@ -22,9 +22,6 @@ logger = get_logger(__name__)
 
 def get_gemini_client() -> Optional[genai.Client]:
     """Safely initialize and return a Gemini client instance."""
-    if not GEMINI_API_KEY:
-        logger.error("❌ Missing GEMINI_API_KEY in environment. Cannot initialize Gemini client.")
-        return None
     try:
         client = genai.Client(api_key=GEMINI_API_KEY)
         logger.info("✅ Gemini client initialized successfully.")
