@@ -72,8 +72,6 @@ AutoLinkedAI/
 ├── requirements.txt              # Python dependencies
 └── README.md                     # Documentation
 
-````
-
 ---
 
 ## 🔑 Environment Variables (`.env`)
