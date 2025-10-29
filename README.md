@@ -1,12 +1,3 @@
-## 🧠 Project Name
-
-**AutoLinkedAI — Automated LinkedIn Content Creator and Publisher**
-
----
-
-## 📘 README.md
-
-```markdown
 # 🚀 AutoLinkedAI — Automated LinkedIn Content Creator and Publisher
 
 AutoLinkedAI is an intelligent workflow-based system that **automatically generates, reviews, enhances, and posts LinkedIn content** using AI agents built with **LangGraph**, **OpenAI GPT-4o**, and **Gemini API**.  
@@ -71,6 +62,8 @@ AutoLinkedAI/
 ├── .env                          # Environment variables
 ├── requirements.txt              # Python dependencies
 └── README.md                     # Documentation
+
+````
 
 ---
 
