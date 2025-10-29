@@ -2,8 +2,7 @@ from typing import Optional
 from io import BytesIO
 from PIL import Image
 import os
-from google import genai
-from google.genai import errors as genai_errors
+import google.generativeai as genai
 from langchain.tools import tool
 
 from app.utils.config import GEMINI_API_KEY
@@ -20,15 +19,17 @@ from app.utils.constants import (
 
 logger = get_logger(__name__)
 
-def get_gemini_client() -> Optional[genai.Client]:
-    """Safely initialize and return a Gemini client instance."""
+
+def get_gemini_client() -> bool:
+    """Initialize Gemini with the API key."""
     try:
-        client = genai.Client(api_key=GEMINI_API_KEY)
-        logger.info("✅ Gemini client initialized successfully.")
-        return client
+        genai.configure(api_key=GEMINI_API_KEY)
+        logger.info("✅ Gemini client configured successfully.")
+        return True
     except Exception as e:
         logger.error(GEMINI_CLIENT_INIT_FAIL.format(error=e))
-        return None
+        return False
+
 
 @tool("generate_gemini_image")
 def generate_gemini_image(prompt: str, temp_path: str = "temp_gemini_image.png") -> Optional[bytes]:
@@ -42,21 +43,19 @@ def generate_gemini_image(prompt: str, temp_path: str = "temp_gemini_image.png")
     Returns:
         Optional[bytes]: The image data in bytes, or None if generation failed.
     """
-    gemini_client = get_gemini_client()
-    if not gemini_client:
+    if not get_gemini_client():
         return None
 
     full_prompt = GEMINI_IMAGE_PROMPT_TEMPLATE.format(topic=prompt)
     logger.info(f"🎨 Generating Gemini image for prompt: '{prompt}'")
 
     try:
-        response = gemini_client.models.generate_content(
-            model=GEMINI_MODEL,
-            contents=[full_prompt],
-        )
+        model = genai.GenerativeModel(GEMINI_MODEL)
+        response = model.generate_content(full_prompt)
 
         image_bytes: Optional[bytes] = None
-        if response.candidates:
+        # If Gemini returns inline data or media parts
+        if hasattr(response, "candidates") and response.candidates:
             for part in response.candidates[0].content.parts:
                 if hasattr(part, "inline_data") and part.inline_data:
                     image_bytes = part.inline_data.data
@@ -76,12 +75,10 @@ def generate_gemini_image(prompt: str, temp_path: str = "temp_gemini_image.png")
 
         return image_bytes
 
-    except genai_errors.APIError as e:
-        logger.error(GEMINI_IMAGE_GEN_FAIL.format(error=e))
-        return None
     except Exception as e:
         logger.error(GEMINI_IMAGE_GEN_FAIL.format(error=e))
         return None
+
     finally:
         if os.path.exists(temp_path):
             os.remove(temp_path)
