@@ -7,3 +7,4 @@ requests
 pymongo 
 Pillow
 google-generativeai
+tiktoken
