@@ -79,13 +79,9 @@ logger = get_logger(__name__)
 #         logger.error(GEMINI_IMAGE_GEN_FAIL.format(error=e))
 #         return None
 
-#     finally:
-#         if os.path.exists(temp_path):
-#             os.remove(temp_path)
-#             logger.info(TEMP_FILE_REMOVED)
 
 @tool("generate_gemini_image")
-def generate_gemini_image(temp_path: str = "generated_image.png") -> Optional[bytes]:
+def generate_gemini_image(prompt: str, temp_path: str = "generated_image.png") -> Optional[bytes]:
     """
     Temporary stub for Gemini image generation.
     Generates a dummy RGB image for testing workflows without a Gemini API key.
@@ -96,24 +92,13 @@ def generate_gemini_image(temp_path: str = "generated_image.png") -> Optional[by
     Returns:
         Optional[bytes]: Image data in bytes.
     """
-    try:
-        # Create a dummy 512x512 RGB image
-        image = Image.new("RGB", (512, 512), color=(73, 109, 137))
-        
-        # Save temporarily
-        image.save(temp_path)
-        logger.info(f"✅ Dummy image saved at {temp_path}")
-        
-        # Return bytes
-        with open(temp_path, "rb") as f:
-            image_bytes = f.read()
-        return image_bytes
+    temp_path = "dummy_image.png"  # Hardcoded path
+    image = Image.new("RGB", (512, 512), color=(73, 109, 137))
+    image.save(temp_path)
+    logger.info(f"✅ Dummy image saved at {temp_path}")
+     # Read image bytes
+    with open(temp_path, "rb") as f:
+        image_bytes = f.read()
 
-    except Exception as e:
-        logger.error(f"❌ Dummy image generation failed: {e}")
-        return None
+    return image_bytes
 
-    finally:
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-            logger.info(TEMP_FILE_REMOVED)

@@ -1,4 +1,5 @@
 from __future__ import annotations
+import os
 from typing import Optional, Dict
 from datetime import datetime, timezone
 
@@ -7,7 +8,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langgraph.prebuilt import create_react_agent
 from langgraph.graph import StateGraph, END
 
-from app.services.linkedin_service import post_to_linkedin
+from app.services.linkedin_service import post_to_linkedin, upload_media_to_linkedin
 from app.services.gemini_service import generate_gemini_image
 from app.services.mongodb_service import save_post
 from app.utils.logger import get_logger
@@ -109,19 +110,42 @@ def reviewer_node(state: AgentState) -> Dict[str, Optional[str]]:
 
 
 def image_generation_node(state: AgentState) -> Dict[str, Optional[str]]:
-    """Generate image using Gemini."""
+    """Generate image using Gemini and upload to LinkedIn."""
     if not state.final_post:
         logger.warning("⚠️ No final_post available, skipping image generation.")
         return {"image_asset_urn": None, "current_node": "image_generation"}
 
+    TEMP_IMAGE_PATH = "temp_dummy_image.png"  # Hardcoded temp path
+
     try:
-        urn = generate_gemini_image.invoke(state.final_post)
-        if isinstance(urn, str) and urn.startswith("urn:li:asset:"):
-            logger.info("🖼️ Image asset URN generated: %s", urn)
-            return {"image_asset_urn": urn, "current_node": "image_generation"}
-        else:
-            logger.warning("⚠️ Image generation failed, continuing without image. Output: %s", urn)
+        # 1️⃣ Generate dummy image bytes
+        image_bytes = generate_gemini_image.invoke(state.final_post)
+
+        if not image_bytes:
+            logger.warning("⚠️ Image generation returned no data. Skipping image.")
             return {"image_asset_urn": None, "current_node": "image_generation"}
+
+        # 2️⃣ Save bytes temporarily to disk
+        with open(TEMP_IMAGE_PATH, "wb") as f:
+            f.write(image_bytes)
+        logger.info(f"✅ Dummy image saved at {TEMP_IMAGE_PATH}")
+
+        # 3️⃣ Upload to LinkedIn
+        asset_urn = upload_media_to_linkedin(TEMP_IMAGE_PATH)
+
+        # 4️⃣ Clean up temp file
+        if os.path.exists(TEMP_IMAGE_PATH):
+            os.remove(TEMP_IMAGE_PATH)
+            logger.info("🧹 Temporary image file removed.")
+
+        # 5️⃣ Return result
+        if asset_urn and asset_urn.startswith("urn:li:asset:"):
+            logger.info("🖼️ Image asset URN generated: %s", asset_urn)
+            return {"image_asset_urn": asset_urn, "current_node": "image_generation"}
+        else:
+            logger.warning("⚠️ Image upload failed, post will be text-only.")
+            return {"image_asset_urn": None, "current_node": "image_generation"}
+
     except Exception as e:
         logger.exception("❌ Image generation error: %s", e)
         return {"image_asset_urn": None, "current_node": "image_generation"}

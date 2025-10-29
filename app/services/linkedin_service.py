@@ -17,9 +17,6 @@ logger = get_logger(__name__)
 REGISTER_UPLOAD_URL = "https://api.linkedin.com/v2/assets?action=registerUpload"
 LINKEDIN_POST_API_URL = "https://api.linkedin.com/v2/ugcPosts"
 
-
-# === Upload Media Tool ===
-@tool("upload_media_to_linkedin")
 def upload_media_to_linkedin(file_path: str) -> str | None:
     """
     Upload an image to LinkedIn and return the asset URN.
@@ -30,10 +27,6 @@ def upload_media_to_linkedin(file_path: str) -> str | None:
     Returns:
         str | None: LinkedIn asset URN if successful, else None.
     """
-    if not LINKEDIN_ACCESS_TOKEN or not LINKEDIN_PERSON_URN:
-        logger.error(LINKEDIN_MISSING_CREDENTIALS)
-        return None
-
     headers = {
         "Authorization": f"Bearer {LINKEDIN_ACCESS_TOKEN}",
         "Content-Type": "application/json",
