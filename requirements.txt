@@ -1,0 +1,9 @@
+langgraph
+langchain
+langchain-core
+langchain-openai
+python-dotenv
+requests
+pymongo 
+Pillow
+google-generativeai
