@@ -91,14 +91,6 @@ temp_*.png
 *.swp
 *.swo
 
-# Model or vector database caches
-.cache/
-artifacts/
-data/
-outputs/
-models/
-checkpoints/
-
 # =======================================
 # 🧩 Environment / Secrets
 # =======================================
