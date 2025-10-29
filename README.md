@@ -32,10 +32,9 @@ Software Engineer | AI & Automation Enthusiast
 | AI & NLP | OpenAI GPT-4o |
 | Image Generation | Google Gemini API |
 | Workflow Engine | LangGraph |
-| Backend | Python (FastAPI / Service Modules) |
+| Backend | Python |
 | Database | MongoDB |
 | Logging | Custom Logger with Rotation |
-| Scheduler | Cron or Task Runner |
 
 ---
 
