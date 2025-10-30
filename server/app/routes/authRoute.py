@@ -1,6 +1,6 @@
 import os
 import requests
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 
 LINKEDIN_CLIENT_ID = os.getenv("LINKEDIN_CLIENT_ID")
 LINKEDIN_CLIENT_SECRET = os.getenv("LINKEDIN_CLIENT_SECRET")
@@ -25,13 +25,35 @@ def get_access_token(data: dict):
     if res.status_code != 200:
         raise HTTPException(status_code=400, detail=res.json())
 
+    token_data = res.json()
+
+    access_token = token_data.get("access_token")
+    if access_token:
+        print("🔑 LINKEDIN ACCESS TOKEN:", access_token)
+    else:
+        print("⚠️ No access token received from LinkedIn!")
+
     return res.json()
 
+# @router.get("/me")
+# def get_user_info(authorization: str):
+#     token = authorization.replace("Bearer ", "")
+#     headers = {"Authorization": f"Bearer {token}"}
+#     res = requests.get("https://api.linkedin.com/v2/userinfo", headers=headers)
+#     if res.status_code != 200:
+#         raise HTTPException(status_code=400, detail=res.json())
+#     return res.json()
+
+
+
 @router.get("/me")
-def get_user_info(authorization: str):
+def get_user_info(authorization: str = Header(...)):
+    """Get LinkedIn user info using access token."""
     token = authorization.replace("Bearer ", "")
     headers = {"Authorization": f"Bearer {token}"}
+
     res = requests.get("https://api.linkedin.com/v2/userinfo", headers=headers)
     if res.status_code != 200:
-        raise HTTPException(status_code=400, detail=res.json())
+        raise HTTPException(status_code=res.status_code, detail=res.json())
+
     return res.json()
