@@ -27,7 +27,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const scope = "openid profile email";
     const state = crypto.randomUUID();
 
-    // Step 1: Redirect user to LinkedIn auth page
     const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(
       redirectUri
     )}&scope=${encodeURIComponent(scope)}&state=${state}`;
@@ -51,15 +50,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     setLoading(true);
     try {
-      // Step 2: Exchange code for access token via backend
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/linkedin/token`, {
         code,
         redirect_uri: import.meta.env.VITE_LINKEDIN_REDIRECT_URI,
       });
 
-      const { access_token } = response.data;
+      const access_token = response.data.access_token;
+      if (!access_token) {
+        console.error("No access token returned from backend:", response.data);
+        return;
+      }
 
-      // Step 3: Get user info from backend (or directly from LinkedIn)
       const userInfo = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/linkedin/me`, {
         headers: { Authorization: `Bearer ${access_token}` },
       });
@@ -71,7 +72,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         accessToken: access_token,
       });
 
-      // Clean up
       localStorage.removeItem("linkedin_state");
       window.history.replaceState({}, document.title, "/");
     } catch (error) {
@@ -101,8 +101,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
