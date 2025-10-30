@@ -22,6 +22,8 @@ LINKEDIN_ASSET_UPLOAD_FAIL = "❌ Failed to upload image to LinkedIn: {error}"
 LINKEDIN_POST_SUCCESS = "✅ Post published successfully on LinkedIn."
 LINKEDIN_POST_FAIL = "❌ LinkedIn post failed with status {status}: {error}"
 LINKEDIN_NETWORK_ERROR = "🌐 Network error during LinkedIn operation: {error}"
+REGISTER_UPLOAD_URL = "https://api.linkedin.com/v2/assets?action=registerUpload"
+LINKEDIN_POST_API_URL = "https://api.linkedin.com/v2/ugcPosts"
 
 # --- Gemini Messages ---
 GEMINI_CLIENT_INIT_FAIL = "❌ Failed to initialize Gemini client: {error}"

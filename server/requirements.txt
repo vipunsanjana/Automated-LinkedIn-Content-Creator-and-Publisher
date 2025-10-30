@@ -8,3 +8,5 @@ pymongo
 Pillow
 google-generativeai
 tiktoken
+fastapi
+uvicorn

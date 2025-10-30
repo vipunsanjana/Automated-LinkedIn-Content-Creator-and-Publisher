@@ -9,13 +9,12 @@ from app.utils.constants import (
     LINKEDIN_ASSET_UPLOAD_FAIL,
     LINKEDIN_POST_SUCCESS,
     LINKEDIN_POST_FAIL,
-    LINKEDIN_NETWORK_ERROR
+    LINKEDIN_NETWORK_ERROR,
+    REGISTER_UPLOAD_URL,
+    LINKEDIN_POST_API_URL,
 )
 
 logger = get_logger(__name__)
-
-REGISTER_UPLOAD_URL = "https://api.linkedin.com/v2/assets?action=registerUpload"
-LINKEDIN_POST_API_URL = "https://api.linkedin.com/v2/ugcPosts"
 
 def upload_media_to_linkedin(file_path: str) -> str | None:
     """
