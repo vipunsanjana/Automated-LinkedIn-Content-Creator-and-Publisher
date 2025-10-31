@@ -10,12 +10,10 @@ router = APIRouter(prefix="/auth/linkedin", tags=["LinkedIn OAuth"])
 
 @router.post("/token")
 def get_access_token(data: dict):
-    """
-    Exchange LinkedIn auth code for access token.
-    Expects JSON body: { "code": "...", "redirect_uri": "..." }
-    """
     code = data.get("code")
     redirect_uri = data.get("redirect_uri")
+
+    print("redirect uri received:", redirect_uri)
 
     if not code or not redirect_uri:
         raise HTTPException(status_code=400, detail="Missing code or redirect_uri")
@@ -49,9 +47,6 @@ def get_access_token(data: dict):
 
 @router.get("/me")
 def get_user_info(authorization: str = Header(...)):
-    """
-    Fetch LinkedIn profile info (name + email) using Bearer token
-    """
     token = authorization.replace("Bearer ", "")
     headers = {"Authorization": f"Bearer {token}"}
 

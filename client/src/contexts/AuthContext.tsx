@@ -24,7 +24,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signInWithLinkedIn = () => {
     const clientId = import.meta.env.VITE_LINKEDIN_CLIENT_ID;
     const redirectUri = import.meta.env.VITE_LINKEDIN_REDIRECT_URI;
-    const scope = "openid profile email";
+    // ✅ FIXED SCOPE
+    const scope = "r_liteprofile r_emailaddress";
     const state = crypto.randomUUID();
 
     const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(
@@ -50,10 +51,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     setLoading(true);
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/linkedin/token`, {
-        code,
-        redirect_uri: import.meta.env.VITE_LINKEDIN_REDIRECT_URI,
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/auth/linkedin/token`,
+        {
+          code,
+          redirect_uri: import.meta.env.VITE_LINKEDIN_REDIRECT_URI,
+        }
+      );
 
       const access_token = response.data.access_token;
       if (!access_token) {
@@ -61,9 +65,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      const userInfo = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/linkedin/me`, {
-        headers: { Authorization: `Bearer ${access_token}` },
-      });
+      const userInfo = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/auth/linkedin/me`,
+        {
+          headers: { Authorization: `Bearer ${access_token}` },
+        }
+      );
 
       setUser({
         id: userInfo.data.id,
@@ -101,6 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within an AuthProvider");
+  if (!context)
+    throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
